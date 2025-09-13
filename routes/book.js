@@ -1,6 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const calendarService = require('../services/calendarService');
+const bookingService = require('../services/mockBookingService');
 
 const router = express.Router();
 
@@ -31,7 +31,7 @@ router.get('/availability', async (req, res) => {
     }
 
     const { date, duration } = value;
-    const availableSlots = await calendarService.getAvailableSlots(date, duration);
+    const availableSlots = await bookingService.getAvailableSlots(date, duration);
 
     res.json({
       date,
@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const booking = await calendarService.createBooking(value);
+    const booking = await bookingService.createBooking(value);
 
     res.status(201).json({
       message: 'Booking created successfully',
@@ -89,17 +89,17 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.delete('/:eventId', async (req, res) => {
+router.delete('/:bookingId', async (req, res) => {
   try {
-    const { eventId } = req.params;
+    const { bookingId } = req.params;
 
-    if (!eventId) {
+    if (!bookingId) {
       return res.status(400).json({
-        error: 'Event ID is required'
+        error: 'Booking ID is required'
       });
     }
 
-    const result = await calendarService.cancelBooking(eventId);
+    const result = await bookingService.cancelBooking(bookingId);
 
     res.json({
       message: 'Booking cancelled successfully',

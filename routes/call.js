@@ -2,7 +2,7 @@ const express = require('express');
 const Joi = require('joi');
 const fetch = require('node-fetch');
 const businessKnowledge = require('../data/business_knowledge.json');
-const calendarService = require('../services/calendarService');
+const bookingService = require('../services/mockBookingService');
 
 const router = express.Router();
 
@@ -52,7 +52,7 @@ class VoiceCallService {
   async handleBookingIntent(message, customerName) {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const availableSlots = await calendarService.getAvailableSlots(today);
+      const availableSlots = await bookingService.getAvailableSlots(today);
 
       const response = `Hi ${customerName}! I'd be happy to help you schedule an appointment.
 
