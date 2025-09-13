@@ -1,0 +1,48 @@
+{
+  "business_name": "Pizza Karachi",
+  "hours": {
+    "monday": "12pm–9pm",
+    "tuesday": "12pm–9pm",
+    "wednesday": "12pm–9pm",
+    "thursday": "12pm–9pm",
+    "friday": "12pm–10pm",
+    "saturday": "12pm–10pm",
+    "sunday": "12pm–5pm"
+  },
+  "location": "123 Main St, Toronto, ON M5V 3A8",
+  "phone": "+1-416-555-0123",
+  "services": ["pickup", "delivery", "dine-in", "catering"],
+  "delivery_areas": ["Downtown", "North York", "Scarborough", "Etobicoke"],
+  "delivery_fee": "$5 (free over $30)",
+  "specialties": [
+    "Karachi Special Pizza",
+    "Chicken Tikka Pizza",
+    "BBQ Beef Pizza",
+    "Veggie Delight"
+  ],
+  "payment_methods": ["cash", "credit", "debit", "online"],
+  "special_notes": {
+    "halal": true,
+    "vegetarian_options": true,
+    "parking": "Street parking available",
+    "wheelchair_accessible": true
+  },
+  "faqs": [
+    {
+      "question": "Do you deliver?",
+      "answer": "Yes, we deliver to Downtown, North York, Scarborough, and Etobicoke. Delivery fee is $5, but free for orders over $30."
+    },
+    {
+      "question": "Are you halal?",
+      "answer": "Yes, all our meat is 100% halal certified."
+    },
+    {
+      "question": "What time do you close?",
+      "answer": "We close at 9pm Monday-Thursday, 10pm Friday-Saturday, and 5pm on Sunday."
+    },
+    {
+      "question": "Do you take online orders?",
+      "answer": "Yes, you can order online through our website or by calling us."
+    }
+  ]
+}

@@ -1,12 +1,21 @@
 const express = require('express');
 const Joi = require('joi');
-const fetch = require('node-fetch');
-const businessKnowledge = require('../data/business_knowledge.json');
+const fs = require('fs');
+const path = require('path');
+const intentDetector = require('../services/intent');
+const ttsService = require('../services/tts');
 const bookingService = require('../services/mockBookingService');
 
 const router = express.Router();
 
 const callSchema = Joi.object({
+  user_input: Joi.string().required(),
+  business_id: Joi.string().required(),
+  generate_audio: Joi.boolean().default(false),
+  voice: Joi.string().default('rachel')
+});
+
+const oldCallSchema = Joi.object({
   customerPhone: Joi.string().pattern(/^[\+]?[1-9][\d]{0,15}$/).optional(),
   customerName: Joi.string().min(2).max(100).optional(),
   intent: Joi.string().valid('booking', 'inquiry', 'support', 'general').default('general'),
@@ -239,9 +248,70 @@ How can I assist you today?`;
 
 const voiceService = new VoiceCallService();
 
+// New intent-based /call endpoint
 router.post('/', async (req, res) => {
   try {
     const { error, value } = callSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        details: error.details[0].message
+      });
+    }
+
+    const { user_input, business_id, generate_audio, voice } = value;
+
+    // Load business data
+    const businessDataPath = path.join(__dirname, '..', 'data', `${business_id}.json`);
+
+    if (!fs.existsSync(businessDataPath)) {
+      return res.status(404).json({
+        error: 'Business not found',
+        message: `No data found for business_id: ${business_id}`
+      });
+    }
+
+    const businessData = JSON.parse(fs.readFileSync(businessDataPath, 'utf8'));
+
+    // Detect intent
+    const intent = intentDetector.detectIntent(user_input);
+
+    // Generate response
+    const responseText = intentDetector.generateResponse(intent, businessData);
+
+    // Generate audio if requested
+    let audioData = null;
+    if (generate_audio && process.env.ELEVENLABS_API_KEY) {
+      try {
+        audioData = await ttsService.generateSpeech(responseText, { voice });
+      } catch (ttsError) {
+        console.error('TTS generation failed:', ttsError);
+      }
+    }
+
+    res.json({
+      response: responseText,
+      intent: intent,
+      business_id: business_id,
+      ...(audioData && audioData.success && {
+        audio: audioData.audio,
+        audio_content_type: audioData.contentType
+      })
+    });
+
+  } catch (error) {
+    console.error('Error processing call:', error);
+    res.status(500).json({
+      error: 'Failed to process call',
+      message: error.message
+    });
+  }
+});
+
+// Legacy /call/conversation endpoint for backward compatibility
+router.post('/conversation', async (req, res) => {
+  try {
+    const { error, value } = oldCallSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         error: 'Invalid call data',
