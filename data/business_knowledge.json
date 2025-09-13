@@ -1,0 +1,90 @@
+{
+  "businessInfo": {
+    "name": "AI Business Solutions",
+    "phone": "+1-555-0123",
+    "email": "contact@aibusiness.com",
+    "website": "https://aibusiness.com",
+    "address": "123 Tech Street, Innovation City, IC 12345",
+    "timezone": "America/New_York"
+  },
+  "hours": {
+    "monday": { "open": "09:00", "close": "17:00", "isOpen": true },
+    "tuesday": { "open": "09:00", "close": "17:00", "isOpen": true },
+    "wednesday": { "open": "09:00", "close": "17:00", "isOpen": true },
+    "thursday": { "open": "09:00", "close": "17:00", "isOpen": true },
+    "friday": { "open": "09:00", "close": "17:00", "isOpen": true },
+    "saturday": { "open": "10:00", "close": "14:00", "isOpen": true },
+    "sunday": { "open": "00:00", "close": "00:00", "isOpen": false }
+  },
+  "services": [
+    {
+      "id": "consultation",
+      "name": "Business Consultation",
+      "description": "Strategic business planning and consulting services",
+      "duration": 60,
+      "price": 150,
+      "available": true
+    },
+    {
+      "id": "appointment",
+      "name": "General Appointment",
+      "description": "Standard appointment for various business needs",
+      "duration": 30,
+      "price": 75,
+      "available": true
+    },
+    {
+      "id": "meeting",
+      "name": "Team Meeting",
+      "description": "Group meetings and collaborative sessions",
+      "duration": 45,
+      "price": 100,
+      "available": true
+    },
+    {
+      "id": "support",
+      "name": "Technical Support",
+      "description": "Technical assistance and troubleshooting",
+      "duration": 30,
+      "price": 50,
+      "available": true
+    }
+  ],
+  "policies": {
+    "cancellation": "Appointments can be cancelled up to 24 hours in advance without penalty. Cancellations within 24 hours may incur a 50% fee.",
+    "rescheduling": "Appointments can be rescheduled up to 2 hours before the scheduled time.",
+    "payment": "Payment is due at the time of booking. We accept all major credit cards and digital payments.",
+    "preparation": "Please arrive 10 minutes early for your appointment. Bring any relevant documents or materials discussed during booking.",
+    "privacy": "All client information is kept strictly confidential and secure."
+  },
+  "commonQuestions": [
+    {
+      "question": "What are your business hours?",
+      "answer": "We're open Monday through Friday from 9 AM to 5 PM, Saturday from 10 AM to 2 PM, and closed on Sundays."
+    },
+    {
+      "question": "How can I schedule an appointment?",
+      "answer": "You can schedule an appointment by calling us, using our online booking system, or speaking with me right now. I can check availability and book your appointment immediately."
+    },
+    {
+      "question": "What services do you offer?",
+      "answer": "We offer business consultation, general appointments, team meetings, and technical support. Each service has different durations and pricing."
+    },
+    {
+      "question": "What's your cancellation policy?",
+      "answer": "You can cancel appointments up to 24 hours in advance without penalty. Cancellations within 24 hours may incur a 50% fee."
+    },
+    {
+      "question": "Do you offer virtual meetings?",
+      "answer": "Yes, we offer both in-person and virtual meetings depending on your preference and the type of service."
+    },
+    {
+      "question": "How much do your services cost?",
+      "answer": "Pricing varies by service: Business consultation is $150/hour, general appointments are $75/30min, team meetings are $100/45min, and technical support is $50/30min."
+    }
+  ],
+  "emergencyContacts": {
+    "afterHours": "+1-555-0199",
+    "urgent": "urgent@aibusiness.com"
+  }
+}

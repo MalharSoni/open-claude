@@ -1,0 +1,26 @@
+{
+  "name": "ai-receptionist-backend",
+  "version": "1.0.0",
+  "description": "AI receptionist agent backend with voice calls and calendar booking",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ai", "receptionist", "voice", "calendar", "booking"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "googleapis": "^126.0.1",
+    "node-fetch": "^3.3.2",
+    "joi": "^17.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
