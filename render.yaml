@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install
-    startCommand: node main.js
+    startCommand: node unified-server.js
     envVars:
       - key: PORT
         value: 3000

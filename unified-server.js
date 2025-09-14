@@ -106,11 +106,14 @@ class UnifiedAIReceptionist {
 
       ws.on('message', async (message) => {
         try {
+          console.log(`📨 WebSocket message received (${message.length} bytes)`);
           const data = JSON.parse(message);
+          console.log(`🎯 Event: ${data.event}`);
 
           switch (data.event) {
             case 'connected':
               console.log('✅ Connected to Twilio Media Stream');
+              console.log(`📋 Connection details:`, JSON.stringify(data, null, 2));
               break;
 
             case 'start':
@@ -119,6 +122,8 @@ class UnifiedAIReceptionist {
               sessionActive = true;
 
               console.log(`🎧 Stream started for call: ${callSid}`);
+              console.log(`🌊 Stream ID: ${streamSid}`);
+              console.log(`📋 Start event:`, JSON.stringify(data.start, null, 2));
 
               // Initialize call session
               this.activeCalls.set(callSid, {
@@ -132,7 +137,11 @@ class UnifiedAIReceptionist {
               this.audioBuffers.set(callSid, []);
               this.conversationMemory.set(callSid, { messages: [] });
 
+              console.log(`📊 Session initialized. Active calls: ${this.activeCalls.size}`);
+              console.log(`📊 WebSocket ready state: ${ws.readyState}`);
+
               // Send immediate AI greeting
+              console.log('🚀 Triggering greeting...');
               await this.sendImmediateGreeting(ws, streamSid);
               break;
 
@@ -184,13 +193,71 @@ class UnifiedAIReceptionist {
     console.log('🎙️ Sending immediate AI greeting...');
 
     try {
-      const audioBuffer = await this.generateElevenLabsAudio(greeting);
-      if (audioBuffer) {
-        this.streamAudioToTwilio(ws, streamSid, audioBuffer);
-        console.log('✅ AI greeting sent successfully');
-      }
+      // First try to send a simple audio tone to test if WebSocket works
+      console.log('🔊 Testing with simple audio tone first...');
+      this.sendTestTone(ws, streamSid);
+
+      // Then try the actual greeting
+      setTimeout(async () => {
+        const audioBuffer = await this.generateElevenLabsAudio(greeting);
+        if (audioBuffer && audioBuffer.length > 0) {
+          console.log(`📊 Generated audio buffer: ${audioBuffer.length} bytes`);
+          this.streamAudioToTwilio(ws, streamSid, audioBuffer);
+          console.log('✅ AI greeting sent successfully');
+        } else {
+          console.error('❌ No audio buffer generated');
+          // Send a fallback beep
+          this.sendTestTone(ws, streamSid);
+        }
+      }, 1000);
     } catch (error) {
       console.error('❌ Error sending greeting:', error);
+      // Send test tone as fallback
+      this.sendTestTone(ws, streamSid);
+    }
+  }
+
+  sendTestTone(ws, streamSid) {
+    try {
+      console.log('📢 Sending test tone...');
+      // Generate a simple sine wave tone in μ-law format
+      const toneBuffer = Buffer.alloc(8000); // 1 second at 8kHz
+
+      for (let i = 0; i < toneBuffer.length; i++) {
+        // Generate 440Hz sine wave
+        const sample = Math.sin(2 * Math.PI * 440 * i / 8000) * 0.5;
+        const intSample = Math.round(sample * 32767);
+        toneBuffer[i] = this.linearToMulaw(intSample);
+      }
+
+      // Stream the tone
+      const chunkSize = 160;
+      let offset = 0;
+
+      const sendChunk = () => {
+        if (offset < toneBuffer.length && ws.readyState === 1) { // 1 = OPEN
+          const chunk = toneBuffer.slice(offset, Math.min(offset + chunkSize, toneBuffer.length));
+          const base64Audio = chunk.toString('base64');
+
+          const mediaMessage = {
+            event: 'media',
+            streamSid: streamSid,
+            media: {
+              payload: base64Audio
+            }
+          };
+
+          ws.send(JSON.stringify(mediaMessage));
+          offset += chunkSize;
+          setTimeout(sendChunk, 20);
+        } else if (offset >= toneBuffer.length) {
+          console.log('✅ Test tone completed');
+        }
+      };
+
+      sendChunk();
+    } catch (error) {
+      console.error('❌ Error sending test tone:', error);
     }
   }
 
