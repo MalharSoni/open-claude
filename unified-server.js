@@ -406,15 +406,15 @@ Respond naturally and helpfully. Keep responses conversational and under 50 word
 
   async generateOpenAIAudio(text) {
     try {
-      const mp3Response = await this.openai.audio.speech.create({
+      const wavResponse = await this.openai.audio.speech.create({
         model: 'tts-1-hd',
         voice: 'nova',
         input: text,
-        response_format: 'mp3'
+        response_format: 'wav'
       });
 
-      const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
-      console.log('🎵 OpenAI TTS audio generated');
+      const audioBuffer = Buffer.from(await wavResponse.arrayBuffer());
+      console.log('🎵 OpenAI TTS audio generated (WAV)');
       return audioBuffer;
 
     } catch (error) {
@@ -425,11 +425,25 @@ Respond naturally and helpfully. Keep responses conversational and under 50 word
 
   streamAudioToTwilio(ws, streamSid, audioBuffer) {
     try {
-      // Convert audio to μ-law for Twilio
-      const mulawBuffer = this.convertToMulaw(audioBuffer);
+      console.log(`🎵 Processing ${audioBuffer.length} bytes of audio for Twilio`);
 
-      // Stream in small chunks
-      const chunkSize = 640; // 20ms of audio at 8kHz
+      // Extract PCM data from WAV file
+      let pcmData;
+      if (audioBuffer.length > 44 && audioBuffer.toString('ascii', 0, 4) === 'RIFF') {
+        // WAV file - extract PCM data (skip 44-byte header)
+        pcmData = audioBuffer.slice(44);
+        console.log(`📊 Extracted ${pcmData.length} bytes of PCM data from WAV`);
+      } else {
+        console.log('⚠️ Audio not in WAV format, using as-is');
+        pcmData = audioBuffer;
+      }
+
+      // Convert PCM to μ-law
+      const mulawBuffer = this.pcmToMulaw(pcmData);
+      console.log(`🔄 Converted to ${mulawBuffer.length} bytes of μ-law`);
+
+      // Stream in small chunks (160 bytes = 20ms of audio at 8kHz μ-law)
+      const chunkSize = 160;
       let offset = 0;
 
       const sendChunk = () => {
@@ -448,13 +462,14 @@ Respond naturally and helpfully. Keep responses conversational and under 50 word
           ws.send(JSON.stringify(mediaMessage));
           offset += chunkSize;
 
-          // Send next chunk
-          setTimeout(sendChunk, 20); // 20ms intervals for smooth playback
+          // Send next chunk after 20ms
+          setTimeout(sendChunk, 20);
+        } else if (offset >= mulawBuffer.length) {
+          console.log('✅ Audio streaming completed');
         }
       };
 
       sendChunk();
-      console.log('📤 Audio streaming to Twilio initiated');
 
     } catch (error) {
       console.error('❌ Error streaming audio to Twilio:', error);
@@ -462,9 +477,71 @@ Respond naturally and helpfully. Keep responses conversational and under 50 word
   }
 
   convertToMulaw(audioBuffer) {
-    // Simple μ-law conversion (placeholder - you may need a proper audio library)
-    // For now, return the buffer as-is (Twilio may handle some formats)
-    return audioBuffer;
+    // Convert MP3 to PCM first, then to μ-law
+    // For now, we'll use a simplified approach - send as base64 PCM
+    // Twilio expects μ-law but can handle some PCM formats
+    try {
+      // If it's MP3, we need to decode it first
+      // For production, you'd use ffmpeg or a proper audio library
+      // For now, let's try a simpler approach - convert to 8kHz mono PCM
+
+      // Simplified: assume it's already in a usable format or convert basic headers
+      if (audioBuffer.length > 44 && audioBuffer.toString('ascii', 0, 4) === 'RIFF') {
+        // It's a WAV file, extract PCM data (skip 44-byte header)
+        const pcmData = audioBuffer.slice(44);
+        return this.pcmToMulaw(pcmData);
+      }
+
+      // For MP3 or other formats, we need a more complex conversion
+      // As a fallback, return a silence buffer in μ-law format
+      console.log('⚠️ Audio format conversion needed - using fallback');
+      const silenceBuffer = Buffer.alloc(1024);
+      silenceBuffer.fill(0xFF); // μ-law silence
+      return silenceBuffer;
+
+    } catch (error) {
+      console.error('❌ Audio conversion error:', error);
+      // Return μ-law silence as fallback
+      const silenceBuffer = Buffer.alloc(1024);
+      silenceBuffer.fill(0xFF);
+      return silenceBuffer;
+    }
+  }
+
+  pcmToMulaw(pcmBuffer) {
+    // Convert 16-bit PCM to μ-law
+    const mulawBuffer = Buffer.alloc(pcmBuffer.length / 2);
+
+    for (let i = 0; i < pcmBuffer.length; i += 2) {
+      const sample = pcmBuffer.readInt16LE(i);
+      mulawBuffer[i / 2] = this.linearToMulaw(sample);
+    }
+
+    return mulawBuffer;
+  }
+
+  linearToMulaw(sample) {
+    // Linear PCM to μ-law conversion
+    const MULAW_BIAS = 0x84;
+    const MULAW_MAX = 0x1FFF;
+
+    if (sample < 0) {
+      sample = -sample;
+      var sign = 0x80;
+    } else {
+      var sign = 0x00;
+    }
+
+    if (sample > MULAW_MAX) sample = MULAW_MAX;
+    sample += MULAW_BIAS;
+
+    let exponent = 7;
+    for (let exp_lut = [256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
+         exponent > 0 && sample < exp_lut[exponent - 1];
+         exponent--) {}
+
+    const mantissa = (sample >> (exponent + 3)) & 0x0F;
+    return ~(sign | (exponent << 4) | mantissa);
   }
 
   cleanupCall(callSid) {
