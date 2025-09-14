@@ -185,10 +185,10 @@ class StreamingVoiceService {
     const timeSinceLastProcess = Date.now() - (callSession.lastProcessTime || 0);
 
     // Process if:
-    // 1. Buffer has 2+ seconds of audio, OR
-    // 2. 3+ seconds since last processing (catch end of speech)
-    return bufferDuration >= 2000 ||
-           (timeSinceLastProcess >= 3000 && audioBuffer.length > 0 && !callSession.isProcessing);
+    // 1. Buffer has 3+ seconds of audio (more buffer for better transcription), OR
+    // 2. 5+ seconds since last processing (catch end of speech) AND buffer has at least 1 second
+    return bufferDuration >= 3000 ||
+           (timeSinceLastProcess >= 5000 && bufferDuration >= 1000 && !callSession.isProcessing);
   }
 
   /**
@@ -206,6 +206,14 @@ class StreamingVoiceService {
 
       // Combine audio chunks
       const combinedAudio = Buffer.concat(audioBuffer);
+
+      // Check minimum audio length (Whisper needs at least 0.1 seconds)
+      const estimatedDuration = audioBuffer.length * 20; // 20ms per chunk
+      if (estimatedDuration < 100) {
+        console.log(`[STT] Audio too short (${estimatedDuration}ms), skipping transcription`);
+        callSession.isProcessing = false;
+        return;
+      }
 
       // Clear buffer
       this.audioBuffers.set(callSid, []);
