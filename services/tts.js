@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
 const path = require('path');
 
@@ -27,6 +27,8 @@ class TTSService {
         return await this.generateElevenLabsSpeech(text, options.voice, options.format, businessId);
       } else if (options.provider === 'openai' && this.openAIApiKey) {
         return await this.generateOpenAISpeech(text, options.voice, businessId);
+      } else if (options.provider === 'open_source') {
+        return await this.generateOpenSourceTTS(text, businessId);
       } else {
         return {
           success: false,
@@ -59,6 +61,8 @@ class TTSService {
         return await this.generateElevenLabsSpeech(text, voice, format, businessId);
       } else if (provider === 'openai' && this.openAIApiKey) {
         return await this.generateOpenAISpeech(text, voice, businessId);
+      } else if (provider === 'open_source') {
+        return await this.generateOpenSourceTTS(text, businessId);
       } else {
         return {
           success: false,
@@ -230,6 +234,43 @@ class TTSService {
     }
 
     return Buffer.concat(chunks);
+  }
+
+  async generateOpenSourceTTS(text, businessId = 'default') {
+    try {
+      // Simulate open source TTS with a simple text-to-file approach
+      // In production, this would use something like espeak, festival, or a Hugging Face model
+      console.log('Using open source TTS fallback for:', text.substring(0, 50) + '...');
+
+      // Create a simple audio placeholder file
+      const filename = `${businessId}-${Date.now()}-opensource.mp3`;
+      const filepath = path.join(this.outputDir, filename);
+
+      // For demo purposes, create a small dummy MP3 file
+      // In reality, you'd integrate with espeak, festival, or a Python TTS script
+      const dummyMp3Header = Buffer.from([
+        0xFF, 0xFB, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      ]);
+
+      fs.writeFileSync(filepath, dummyMp3Header);
+
+      return {
+        success: true,
+        audio: dummyMp3Header.toString('base64'),
+        contentType: 'audio/mpeg',
+        provider: 'open_source',
+        voice: 'default',
+        text: text,
+        url: `/audio/${filename}`,
+        filepath: filepath,
+        note: 'Demo placeholder - integrate with real open source TTS'
+      };
+
+    } catch (error) {
+      console.error('Open source TTS error:', error);
+      throw error;
+    }
   }
 }
 

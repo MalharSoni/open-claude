@@ -274,22 +274,43 @@ router.post('/', async (req, res) => {
     const businessData = JSON.parse(fs.readFileSync(businessDataPath, 'utf8'));
 
     // Detect intent
+    const startTime = Date.now();
     const intent = intentDetector.detectIntent(user_input);
 
     // Generate response
     const responseText = intentDetector.generateResponse(intent, businessData);
 
-    // Generate audio if requested (or always generate if TTS is configured)
+    // Log the call
+    console.log(`[CALL] ${new Date().toISOString()} | Business: ${business_id} | Intent: ${intent} | Input: "${user_input.substring(0, 100)}${user_input.length > 100 ? '...' : ''}"`);
+
+    let audioResult = null;
+
+    // Generate audio if TTS is configured
     let audioData = null;
     let audioAvailable = false;
 
-    if (process.env.ELEVENLABS_API_KEY || process.env.OPENAI_API_KEY) {
+    if (process.env.ELEVENLABS_API_KEY || process.env.OPENAI_API_KEY || process.env.TTS_PROVIDER === 'open_source') {
       try {
+        const audioStartTime = Date.now();
         audioData = await ttsService.generateAudio(responseText, business_id);
         audioAvailable = audioData.success;
+        const audioTime = Date.now() - audioStartTime;
+        console.log(`[AUDIO] ${audioAvailable ? 'SUCCESS' : 'FAILED'} | Time: ${audioTime}ms | Provider: ${audioData?.provider || 'unknown'}`);
       } catch (ttsError) {
-        console.error('TTS generation failed:', ttsError);
+        console.error('[AUDIO] TTS generation failed:', ttsError);
       }
+    }
+
+    const totalTime = Date.now() - startTime;
+
+    console.log(`[CALL] COMPLETED | Total time: ${totalTime}ms | Audio: ${audioAvailable}`);
+
+    // Make audio URL absolute
+    let absoluteAudioUrl = null;
+    if (audioData && audioData.success && audioData.url) {
+      const protocol = req.secure ? 'https' : 'http';
+      const host = req.get('host') || `localhost:${process.env.PORT || 3000}`;
+      absoluteAudioUrl = `${protocol}://${host}${audioData.url}`;
     }
 
     res.json({
@@ -298,8 +319,10 @@ router.post('/', async (req, res) => {
       intent: intent,
       business_id: business_id,
       audio_available: audioAvailable,
+      response_time_ms: totalTime,
       ...(audioData && audioData.success && {
-        audio_url: audioData.url,
+        audio_url: absoluteAudioUrl,
+        audio_url_relative: audioData.url,
         audio: audioData.audio,
         audio_content_type: audioData.contentType
       })

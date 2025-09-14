@@ -109,10 +109,10 @@ describe('/call endpoint tests', () => {
 
     if (response.body.audio_available) {
       expect(response.body).toHaveProperty('audio_url');
-      expect(response.body.audio_url).toMatch(/^\/audio\/pizzakarachi-\d+\.mp3$/);
+      expect(response.body.audio_url).toMatch(/\/audio\/pizzakarachi-\d+(-opensource)?\.mp3$/);
 
       // Check if audio file actually exists
-      const audioPath = path.join(__dirname, '..', 'public', response.body.audio_url);
+      const audioPath = path.join(__dirname, '..', 'public', response.body.audio_url_relative);
       expect(fs.existsSync(audioPath)).toBe(true);
     }
   });
