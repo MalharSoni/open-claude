@@ -134,14 +134,20 @@ class StreamingVoiceService {
    */
   async sendInitialGreeting(ws, streamSid) {
     try {
-      const greetingText = "Hello! Welcome to Pizza Karachi. I'm your AI assistant. How can I help you today?";
+      const greetingText = "Hello! Welcome to Pizza Karachi. How can I help you today?";
+
+      console.log('[STREAM] Generating initial greeting...');
 
       // Generate TTS for greeting
       const audioBuffer = await this.generateSpeechAudio(greetingText);
 
       if (audioBuffer) {
+        console.log('[STREAM] Sending greeting audio to caller...');
         // Send audio to Twilio stream
         this.sendAudioToStream(ws, streamSid, audioBuffer);
+
+        // Add delay to ensure greeting is fully played
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
 
       console.log('[STREAM] Initial greeting sent');
@@ -347,6 +353,12 @@ class StreamingVoiceService {
         // Send to Twilio stream
         this.sendAudioToStream(ws, callSession.streamSid, audioBuffer);
         console.log('[TTS] Audio sent to caller');
+
+        // Keep connection alive by updating last activity
+        callSession.lastActivity = Date.now();
+
+        // Add delay to ensure audio is processed before potential stream end
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
     } catch (error) {
@@ -376,23 +388,36 @@ class StreamingVoiceService {
   }
 
   /**
-   * Send audio buffer to Twilio stream
+   * Send audio buffer to Twilio stream in chunks
    */
   sendAudioToStream(ws, streamSid, audioBuffer) {
     try {
-      // Convert audio buffer to base64
-      const base64Audio = audioBuffer.toString('base64');
+      // Send audio in smaller chunks to prevent stream ending
+      const chunkSize = 8192; // 8KB chunks
+      let offset = 0;
 
-      // Send media message to Twilio
-      const mediaMessage = {
-        event: 'media',
-        streamSid: streamSid,
-        media: {
-          payload: base64Audio
+      const sendChunk = () => {
+        if (offset < audioBuffer.length) {
+          const chunk = audioBuffer.slice(offset, offset + chunkSize);
+          const base64Audio = chunk.toString('base64');
+
+          const mediaMessage = {
+            event: 'media',
+            streamSid: streamSid,
+            media: {
+              payload: base64Audio
+            }
+          };
+
+          ws.send(JSON.stringify(mediaMessage));
+          offset += chunkSize;
+
+          // Send next chunk after small delay
+          setTimeout(sendChunk, 20); // 20ms between chunks
         }
       };
 
-      ws.send(JSON.stringify(mediaMessage));
+      sendChunk();
 
     } catch (error) {
       console.error('[STREAM] Error sending audio:', error);
