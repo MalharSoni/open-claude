@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const http = require('http');
+const { createProxyServer } = require('http-proxy');
 require('dotenv').config();
 
 const bookRouter = require('./routes/book');
@@ -70,7 +72,28 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// Create HTTP server and WebSocket proxy
+const server = http.createServer(app);
+const proxy = createProxyServer();
+
+// Handle WebSocket upgrade requests
+server.on('upgrade', (request, socket, head) => {
+  console.log('[PROXY] WebSocket upgrade request received');
+
+  // Proxy WebSocket connections to streaming server on port 8080
+  proxy.ws(request, socket, head, {
+    target: 'ws://localhost:8080',
+    ws: true,
+    changeOrigin: true
+  }, (error) => {
+    if (error) {
+      console.error('[PROXY] WebSocket proxy error:', error);
+      socket.destroy();
+    }
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`🤖 AI Receptionist Backend running on port ${PORT}`);
   console.log(`📊 Dashboard: http://localhost:${PORT}/`);
   console.log(`📅 Booking endpoint: http://localhost:${PORT}/book`);
@@ -79,6 +102,7 @@ app.listen(PORT, () => {
   console.log(`🎙️  Stream endpoint: http://localhost:${PORT}/stream`);
   console.log(`🔧 API endpoints: http://localhost:${PORT}/api`);
   console.log(`🎵 Audio info: http://localhost:${PORT}/audio/info`);
+  console.log(`🔄 WebSocket proxy: ws://localhost:${PORT} → ws://localhost:8080`);
   console.log(`✅ No authentication required - using mock booking service`);
   console.log(`🚀 Start streaming server: node streaming-server.js`);
 

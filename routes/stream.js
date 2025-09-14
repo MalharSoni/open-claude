@@ -21,7 +21,16 @@ router.post('/', async (req, res) => {
     // Connect to our WebSocket server for real-time audio processing
     const protocol = req.secure ? 'wss' : 'ws';
     const host = req.get('host') || `localhost:${process.env.PORT || 3001}`;
-    const streamUrl = `${protocol}://${host.replace(':3001', ':8080')}/stream`; // WebSocket on port 8080
+
+    // If using ngrok (host contains ngrok-free.app), use the same host
+    // Otherwise, use localhost with port 8080
+    let streamUrl;
+    if (host.includes('ngrok-free.app')) {
+      // Use the same ngrok tunnel but direct to WebSocket endpoint
+      streamUrl = `wss://${host.replace('https://', '')}`;
+    } else {
+      streamUrl = `${protocol}://${host.replace(':3001', ':8080')}`;
+    }
 
     stream.stream({
       url: streamUrl,
@@ -52,20 +61,30 @@ router.post('/', async (req, res) => {
  * WebSocket stream status endpoint
  */
 router.get('/status', (req, res) => {
-  const StreamingVoiceService = require('../services/streamingVoice');
-  const streamingService = new StreamingVoiceService();
-
-  res.json({
-    service: 'Twilio Streaming Voice',
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    stats: streamingService.getStats(),
-    endpoints: [
-      'POST /stream - Twilio streaming voice webhook',
-      'GET /stream/status - Stream service status',
-      'WebSocket ws://localhost:8080 - Real-time audio stream'
-    ]
-  });
+  try {
+    // Provide basic stats without creating a service instance
+    res.json({
+      service: 'Twilio Streaming Voice',
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      stats: {
+        activeCalls: 0,
+        conversationsInMemory: 0,
+        uptime: process.uptime()
+      },
+      endpoints: [
+        'POST /stream - Twilio streaming voice webhook',
+        'GET /stream/status - Stream service status',
+        'WebSocket ws://localhost:8080 - Real-time audio stream'
+      ]
+    });
+  } catch (error) {
+    res.status(500).json({
+      service: 'Twilio Streaming Voice',
+      status: 'ERROR',
+      error: error.message
+    });
+  }
 });
 
 /**
