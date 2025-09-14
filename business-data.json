@@ -1,0 +1,95 @@
+{
+  "name": "Pizza Karachi",
+  "phone": "(672) 207-2526",
+  "hours": {
+    "monday": "11:00 AM - 11:00 PM",
+    "tuesday": "11:00 AM - 11:00 PM",
+    "wednesday": "11:00 AM - 11:00 PM",
+    "thursday": "11:00 AM - 11:00 PM",
+    "friday": "11:00 AM - 12:00 AM",
+    "saturday": "11:00 AM - 12:00 AM",
+    "sunday": "11:00 AM - 11:00 PM"
+  },
+  "location": {
+    "address": "123 Downtown St, Toronto, ON",
+    "neighborhood": "Downtown",
+    "features": ["Dine-in", "Takeout", "Delivery"]
+  },
+  "menu": {
+    "signature_pizzas": [
+      {
+        "name": "Chicken Tikka Masala Pizza",
+        "price": "$18.99",
+        "description": "Authentic chicken tikka with masala sauce, onions, peppers"
+      },
+      {
+        "name": "Beef Seekh Kebab Supreme",
+        "price": "$19.99",
+        "description": "Spiced ground beef seekh kebab with mint chutney drizzle"
+      },
+      {
+        "name": "Karachi Special",
+        "price": "$21.99",
+        "description": "Mixed grill toppings with spicy Pakistani spices"
+      }
+    ],
+    "traditional_pizzas": [
+      {
+        "name": "Margherita",
+        "price": "$14.99"
+      },
+      {
+        "name": "Pepperoni",
+        "price": "$16.99"
+      },
+      {
+        "name": "Vegetarian Supreme",
+        "price": "$17.99"
+      }
+    ],
+    "sides": [
+      {
+        "name": "Garlic Naan Bread",
+        "price": "$4.99"
+      },
+      {
+        "name": "Chicken Samosas (4 pieces)",
+        "price": "$7.99"
+      },
+      {
+        "name": "Biryani Rice Bowl",
+        "price": "$8.99"
+      },
+      {
+        "name": "Mango Lassi",
+        "price": "$3.99"
+      }
+    ]
+  },
+  "delivery": {
+    "minimum_order": "$25.00",
+    "delivery_fee": "$2.99",
+    "free_delivery_over": "$35.00",
+    "estimated_time": "30-45 minutes",
+    "delivery_radius": "5 km"
+  },
+  "specialties": [
+    "Authentic Pakistani-style pizza",
+    "Halal ingredients",
+    "Fresh naan bread made daily",
+    "Traditional spice blends",
+    "Vegetarian and vegan options available"
+  ],
+  "promotions": [
+    {
+      "name": "Family Deal",
+      "description": "2 Large pizzas + 4 sides for $39.99",
+      "code": "FAMILY39"
+    },
+    {
+      "name": "Student Special",
+      "description": "15% off with valid student ID",
+      "code": "STUDENT15"
+    }
+  ]
+}

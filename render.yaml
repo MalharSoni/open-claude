@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ai-receptionist
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node unified-server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CLAUDE_API_KEY
+        sync: false
