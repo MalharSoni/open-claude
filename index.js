@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const bookRouter = require('./routes/book');
 const callRouter = require('./routes/call');
+const audioCleanup = require('./services/audioCleanup');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,25 @@ app.get('/health', (req, res) => {
 app.use('/book', bookRouter);
 app.use('/call', callRouter);
 
+// Audio management endpoints
+app.get('/audio/cleanup', async (req, res) => {
+  try {
+    const result = await audioCleanup.cleanupOldFiles();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/audio/info', async (req, res) => {
+  try {
+    const info = await audioCleanup.getStorageInfo();
+    res.json(info);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
@@ -45,7 +65,13 @@ app.listen(PORT, () => {
   console.log(`🤖 AI Receptionist Backend running on port ${PORT}`);
   console.log(`📅 Booking endpoint: http://localhost:${PORT}/book`);
   console.log(`📞 Call endpoint: http://localhost:${PORT}/call`);
+  console.log(`🎵 Audio info: http://localhost:${PORT}/audio/info`);
   console.log(`✅ No authentication required - using mock booking service`);
+
+  // Start automatic audio cleanup (every 6 hours)
+  if (process.env.AUDIO_CLEANUP !== 'false') {
+    audioCleanup.startAutoCleanup(6);
+  }
 });
 
 module.exports = app;
