@@ -1,29 +1,38 @@
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
 class TTSService {
   constructor() {
     this.elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
     this.elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'; // Rachel voice
     this.openAIApiKey = process.env.OPENAI_API_KEY;
+
+    // Setup output directory for audio files
+    this.outputDir = path.join(__dirname, '..', 'public', 'audio');
+    if (!fs.existsSync(this.outputDir)) {
+      fs.mkdirSync(this.outputDir, { recursive: true });
+    }
   }
 
-  async generateSpeech(text, options = {}) {
-    const {
-      voice = 'rachel',
-      provider = process.env.TTS_PROVIDER || 'elevenlabs',
-      format = 'mp3_44100_128'
-    } = options;
+  async generateAudio(text, businessId = 'default') {
+    const options = {
+      voice: 'rachel',
+      provider: process.env.TTS_PROVIDER || 'elevenlabs',
+      format: 'mp3_44100_128'
+    };
 
     try {
-      if (provider === 'elevenlabs' && this.elevenLabsApiKey) {
-        return await this.generateElevenLabsSpeech(text, voice, format);
-      } else if (provider === 'openai' && this.openAIApiKey) {
-        return await this.generateOpenAISpeech(text, voice);
+      if (options.provider === 'elevenlabs' && this.elevenLabsApiKey) {
+        return await this.generateElevenLabsSpeech(text, options.voice, options.format, businessId);
+      } else if (options.provider === 'openai' && this.openAIApiKey) {
+        return await this.generateOpenAISpeech(text, options.voice, businessId);
       } else {
         return {
           success: false,
           error: 'No TTS provider configured',
-          text: text
+          text: text,
+          url: null
         };
       }
     } catch (error) {
@@ -31,12 +40,45 @@ class TTSService {
       return {
         success: false,
         error: error.message,
-        text: text
+        text: text,
+        url: null
       };
     }
   }
 
-  async generateElevenLabsSpeech(text, voice = 'rachel', format = 'mp3_44100_128') {
+  async generateSpeech(text, options = {}) {
+    const {
+      voice = 'rachel',
+      provider = process.env.TTS_PROVIDER || 'elevenlabs',
+      format = 'mp3_44100_128',
+      businessId = 'default'
+    } = options;
+
+    try {
+      if (provider === 'elevenlabs' && this.elevenLabsApiKey) {
+        return await this.generateElevenLabsSpeech(text, voice, format, businessId);
+      } else if (provider === 'openai' && this.openAIApiKey) {
+        return await this.generateOpenAISpeech(text, voice, businessId);
+      } else {
+        return {
+          success: false,
+          error: 'No TTS provider configured',
+          text: text,
+          url: null
+        };
+      }
+    } catch (error) {
+      console.error('TTS generation error:', error);
+      return {
+        success: false,
+        error: error.message,
+        text: text,
+        url: null
+      };
+    }
+  }
+
+  async generateElevenLabsSpeech(text, voice = 'rachel', format = 'mp3_44100_128', businessId = 'default') {
     const voiceIds = {
       rachel: '21m00Tcm4TlvDq8ikWAM',
       domi: 'AZnzlk1XvdvUeBnXmlld',
@@ -75,17 +117,24 @@ class TTSService {
 
     const audioBuffer = await response.buffer();
 
+    // Save audio file to disk
+    const filename = `${businessId}-${Date.now()}.mp3`;
+    const filepath = path.join(this.outputDir, filename);
+    fs.writeFileSync(filepath, audioBuffer);
+
     return {
       success: true,
       audio: audioBuffer.toString('base64'),
       contentType: 'audio/mpeg',
       provider: 'elevenlabs',
       voice: voice,
-      text: text
+      text: text,
+      url: `/audio/${filename}`,
+      filepath: filepath
     };
   }
 
-  async generateOpenAISpeech(text, voice = 'alloy') {
+  async generateOpenAISpeech(text, voice = 'alloy', businessId = 'default') {
     const validVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
     const selectedVoice = validVoices.includes(voice) ? voice : 'alloy';
 
@@ -110,13 +159,20 @@ class TTSService {
 
     const audioBuffer = await response.buffer();
 
+    // Save audio file to disk
+    const filename = `${businessId}-${Date.now()}.mp3`;
+    const filepath = path.join(this.outputDir, filename);
+    fs.writeFileSync(filepath, audioBuffer);
+
     return {
       success: true,
       audio: audioBuffer.toString('base64'),
       contentType: 'audio/mpeg',
       provider: 'openai',
       voice: selectedVoice,
-      text: text
+      text: text,
+      url: `/audio/${filename}`,
+      filepath: filepath
     };
   }
 

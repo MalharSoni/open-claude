@@ -18,8 +18,8 @@ class IntentDetector {
         patterns: [/do you deliver/i, /delivery.*area/i, /deliver.*to/i]
       },
       menu: {
-        keywords: ['menu', 'food', 'pizza', 'price', 'cost', 'special'],
-        patterns: [/what.*menu/i, /show.*menu/i, /pizza.*types/i, /what.*serve/i]
+        keywords: ['menu', 'food', 'pizza', 'price', 'cost', 'special', 'vegetarian', 'vegan', 'options', 'serve'],
+        patterns: [/what.*menu/i, /show.*menu/i, /pizza.*types/i, /what.*serve/i, /vegetarian.*options/i, /vegan.*options/i, /what.*food/i]
       },
       payment: {
         keywords: ['pay', 'payment', 'credit', 'cash', 'card'],

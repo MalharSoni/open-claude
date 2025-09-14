@@ -279,21 +279,27 @@ router.post('/', async (req, res) => {
     // Generate response
     const responseText = intentDetector.generateResponse(intent, businessData);
 
-    // Generate audio if requested
+    // Generate audio if requested (or always generate if TTS is configured)
     let audioData = null;
-    if (generate_audio && process.env.ELEVENLABS_API_KEY) {
+    let audioAvailable = false;
+
+    if (process.env.ELEVENLABS_API_KEY || process.env.OPENAI_API_KEY) {
       try {
-        audioData = await ttsService.generateSpeech(responseText, { voice });
+        audioData = await ttsService.generateAudio(responseText, business_id);
+        audioAvailable = audioData.success;
       } catch (ttsError) {
         console.error('TTS generation failed:', ttsError);
       }
     }
 
     res.json({
-      response: responseText,
+      text_response: responseText,
+      response: responseText, // backwards compatibility
       intent: intent,
       business_id: business_id,
+      audio_available: audioAvailable,
       ...(audioData && audioData.success && {
+        audio_url: audioData.url,
         audio: audioData.audio,
         audio_content_type: audioData.contentType
       })

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 require('dotenv').config();
 
 const bookRouter = require('./routes/book');
@@ -13,6 +14,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static audio files
+app.use('/audio', express.static(path.join(__dirname, 'public', 'audio')));
 
 app.get('/health', (req, res) => {
   res.json({
