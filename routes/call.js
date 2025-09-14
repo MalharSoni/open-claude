@@ -5,6 +5,7 @@ const path = require('path');
 const intentDetector = require('../services/intent');
 const ttsService = require('../services/tts');
 const bookingService = require('../services/mockBookingService');
+const { handleCallLogicWithAbsoluteUrls } = require('../services/callLogic');
 
 const router = express.Router();
 
@@ -261,72 +262,37 @@ router.post('/', async (req, res) => {
 
     const { user_input, business_id, generate_audio, voice } = value;
 
-    // Load business data
-    const businessDataPath = path.join(__dirname, '..', 'data', `${business_id}.json`);
-
-    if (!fs.existsSync(businessDataPath)) {
-      return res.status(404).json({
-        error: 'Business not found',
-        message: `No data found for business_id: ${business_id}`
-      });
-    }
-
-    const businessData = JSON.parse(fs.readFileSync(businessDataPath, 'utf8'));
-
-    // Detect intent
+    // Use the centralized call logic
     const startTime = Date.now();
-    const intent = intentDetector.detectIntent(user_input);
 
-    // Generate response
-    const responseText = intentDetector.generateResponse(intent, businessData);
+    try {
+      const result = await handleCallLogicWithAbsoluteUrls(user_input, business_id, req);
 
-    // Log the call
-    console.log(`[CALL] ${new Date().toISOString()} | Business: ${business_id} | Intent: ${intent} | Input: "${user_input.substring(0, 100)}${user_input.length > 100 ? '...' : ''}"`);
+      const totalTime = Date.now() - startTime;
 
-    let audioResult = null;
+      // Log the call
+      console.log(`[CALL] ${new Date().toISOString()} | Business: ${business_id} | Intent: ${result.intent} | Input: "${user_input.substring(0, 100)}${user_input.length > 100 ? '...' : ''}"`);
 
-    // Generate audio if TTS is configured
-    let audioData = null;
-    let audioAvailable = false;
-
-    if (process.env.ELEVENLABS_API_KEY || process.env.OPENAI_API_KEY || process.env.TTS_PROVIDER === 'open_source') {
-      try {
-        const audioStartTime = Date.now();
-        audioData = await ttsService.generateAudio(responseText, business_id);
-        audioAvailable = audioData.success;
-        const audioTime = Date.now() - audioStartTime;
-        console.log(`[AUDIO] ${audioAvailable ? 'SUCCESS' : 'FAILED'} | Time: ${audioTime}ms | Provider: ${audioData?.provider || 'unknown'}`);
-      } catch (ttsError) {
-        console.error('[AUDIO] TTS generation failed:', ttsError);
+      if (result.audio_available) {
+        console.log(`[AUDIO] SUCCESS | Time: ${totalTime}ms | Provider: ${result.audio_provider || 'unknown'}`);
       }
+
+      console.log(`[CALL] COMPLETED | Total time: ${totalTime}ms | Audio: ${result.audio_available}`);
+
+      // Add response time to result
+      result.response_time_ms = totalTime;
+
+      res.json(result);
+
+    } catch (callError) {
+      if (callError.message.includes('No data found for business_id')) {
+        return res.status(404).json({
+          error: 'Business not found',
+          message: callError.message
+        });
+      }
+      throw callError;
     }
-
-    const totalTime = Date.now() - startTime;
-
-    console.log(`[CALL] COMPLETED | Total time: ${totalTime}ms | Audio: ${audioAvailable}`);
-
-    // Make audio URL absolute
-    let absoluteAudioUrl = null;
-    if (audioData && audioData.success && audioData.url) {
-      const protocol = req.secure ? 'https' : 'http';
-      const host = req.get('host') || `localhost:${process.env.PORT || 3000}`;
-      absoluteAudioUrl = `${protocol}://${host}${audioData.url}`;
-    }
-
-    res.json({
-      text_response: responseText,
-      response: responseText, // backwards compatibility
-      intent: intent,
-      business_id: business_id,
-      audio_available: audioAvailable,
-      response_time_ms: totalTime,
-      ...(audioData && audioData.success && {
-        audio_url: absoluteAudioUrl,
-        audio_url_relative: audioData.url,
-        audio: audioData.audio,
-        audio_content_type: audioData.contentType
-      })
-    });
 
   } catch (error) {
     console.error('Error processing call:', error);

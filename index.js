@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const bookRouter = require('./routes/book');
 const callRouter = require('./routes/call');
+const voiceRouter = require('./routes/voice');
 const audioCleanup = require('./services/audioCleanup');
 
 const app = express();
@@ -29,6 +30,7 @@ app.get('/health', (req, res) => {
 
 app.use('/book', bookRouter);
 app.use('/call', callRouter);
+app.use('/voice', voiceRouter);
 
 // Audio management endpoints
 app.get('/audio/cleanup', async (req, res) => {
@@ -65,6 +67,7 @@ app.listen(PORT, () => {
   console.log(`🤖 AI Receptionist Backend running on port ${PORT}`);
   console.log(`📅 Booking endpoint: http://localhost:${PORT}/book`);
   console.log(`📞 Call endpoint: http://localhost:${PORT}/call`);
+  console.log(`☎️  Voice endpoint: http://localhost:${PORT}/voice`);
   console.log(`🎵 Audio info: http://localhost:${PORT}/audio/info`);
   console.log(`✅ No authentication required - using mock booking service`);
 
