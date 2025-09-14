@@ -1,0 +1,635 @@
+{
+  "name": "Dashboard Test Restaurant",
+  "phone": "(555) 555-5555",
+  "address": "789 Dashboard Ave, Test City, TC 54321",
+  "hours": {
+    "monday": "9am–9pm",
+    "tuesday": "9am–9pm",
+    "wednesday": "9am–9pm",
+    "thursday": "9am–9pm",
+    "friday": "9am–10pm",
+    "saturday": "10am–10pm",
+    "sunday": "11am–8pm"
+  },
+  "services": [
+    {
+      "name": "Service 0",
+      "description": "Description for service 0",
+      "price": 10,
+      "duration": 30
+    },
+    {
+      "name": "Service 1",
+      "description": "Description for service 1",
+      "price": 11,
+      "duration": 31
+    },
+    {
+      "name": "Service 2",
+      "description": "Description for service 2",
+      "price": 12,
+      "duration": 32
+    },
+    {
+      "name": "Service 3",
+      "description": "Description for service 3",
+      "price": 13,
+      "duration": 33
+    },
+    {
+      "name": "Service 4",
+      "description": "Description for service 4",
+      "price": 14,
+      "duration": 34
+    },
+    {
+      "name": "Service 5",
+      "description": "Description for service 5",
+      "price": 15,
+      "duration": 35
+    },
+    {
+      "name": "Service 6",
+      "description": "Description for service 6",
+      "price": 16,
+      "duration": 36
+    },
+    {
+      "name": "Service 7",
+      "description": "Description for service 7",
+      "price": 17,
+      "duration": 37
+    },
+    {
+      "name": "Service 8",
+      "description": "Description for service 8",
+      "price": 18,
+      "duration": 38
+    },
+    {
+      "name": "Service 9",
+      "description": "Description for service 9",
+      "price": 19,
+      "duration": 39
+    },
+    {
+      "name": "Service 10",
+      "description": "Description for service 10",
+      "price": 20,
+      "duration": 40
+    },
+    {
+      "name": "Service 11",
+      "description": "Description for service 11",
+      "price": 21,
+      "duration": 41
+    },
+    {
+      "name": "Service 12",
+      "description": "Description for service 12",
+      "price": 22,
+      "duration": 42
+    },
+    {
+      "name": "Service 13",
+      "description": "Description for service 13",
+      "price": 23,
+      "duration": 43
+    },
+    {
+      "name": "Service 14",
+      "description": "Description for service 14",
+      "price": 24,
+      "duration": 44
+    },
+    {
+      "name": "Service 15",
+      "description": "Description for service 15",
+      "price": 25,
+      "duration": 45
+    },
+    {
+      "name": "Service 16",
+      "description": "Description for service 16",
+      "price": 26,
+      "duration": 46
+    },
+    {
+      "name": "Service 17",
+      "description": "Description for service 17",
+      "price": 27,
+      "duration": 47
+    },
+    {
+      "name": "Service 18",
+      "description": "Description for service 18",
+      "price": 28,
+      "duration": 48
+    },
+    {
+      "name": "Service 19",
+      "description": "Description for service 19",
+      "price": 29,
+      "duration": 49
+    },
+    {
+      "name": "Service 20",
+      "description": "Description for service 20",
+      "price": 30,
+      "duration": 50
+    },
+    {
+      "name": "Service 21",
+      "description": "Description for service 21",
+      "price": 31,
+      "duration": 51
+    },
+    {
+      "name": "Service 22",
+      "description": "Description for service 22",
+      "price": 32,
+      "duration": 52
+    },
+    {
+      "name": "Service 23",
+      "description": "Description for service 23",
+      "price": 33,
+      "duration": 53
+    },
+    {
+      "name": "Service 24",
+      "description": "Description for service 24",
+      "price": 34,
+      "duration": 54
+    },
+    {
+      "name": "Service 25",
+      "description": "Description for service 25",
+      "price": 35,
+      "duration": 55
+    },
+    {
+      "name": "Service 26",
+      "description": "Description for service 26",
+      "price": 36,
+      "duration": 56
+    },
+    {
+      "name": "Service 27",
+      "description": "Description for service 27",
+      "price": 37,
+      "duration": 57
+    },
+    {
+      "name": "Service 28",
+      "description": "Description for service 28",
+      "price": 38,
+      "duration": 58
+    },
+    {
+      "name": "Service 29",
+      "description": "Description for service 29",
+      "price": 39,
+      "duration": 59
+    },
+    {
+      "name": "Service 30",
+      "description": "Description for service 30",
+      "price": 40,
+      "duration": 60
+    },
+    {
+      "name": "Service 31",
+      "description": "Description for service 31",
+      "price": 41,
+      "duration": 61
+    },
+    {
+      "name": "Service 32",
+      "description": "Description for service 32",
+      "price": 42,
+      "duration": 62
+    },
+    {
+      "name": "Service 33",
+      "description": "Description for service 33",
+      "price": 43,
+      "duration": 63
+    },
+    {
+      "name": "Service 34",
+      "description": "Description for service 34",
+      "price": 44,
+      "duration": 64
+    },
+    {
+      "name": "Service 35",
+      "description": "Description for service 35",
+      "price": 45,
+      "duration": 65
+    },
+    {
+      "name": "Service 36",
+      "description": "Description for service 36",
+      "price": 46,
+      "duration": 66
+    },
+    {
+      "name": "Service 37",
+      "description": "Description for service 37",
+      "price": 47,
+      "duration": 67
+    },
+    {
+      "name": "Service 38",
+      "description": "Description for service 38",
+      "price": 48,
+      "duration": 68
+    },
+    {
+      "name": "Service 39",
+      "description": "Description for service 39",
+      "price": 49,
+      "duration": 69
+    },
+    {
+      "name": "Service 40",
+      "description": "Description for service 40",
+      "price": 50,
+      "duration": 70
+    },
+    {
+      "name": "Service 41",
+      "description": "Description for service 41",
+      "price": 51,
+      "duration": 71
+    },
+    {
+      "name": "Service 42",
+      "description": "Description for service 42",
+      "price": 52,
+      "duration": 72
+    },
+    {
+      "name": "Service 43",
+      "description": "Description for service 43",
+      "price": 53,
+      "duration": 73
+    },
+    {
+      "name": "Service 44",
+      "description": "Description for service 44",
+      "price": 54,
+      "duration": 74
+    },
+    {
+      "name": "Service 45",
+      "description": "Description for service 45",
+      "price": 55,
+      "duration": 75
+    },
+    {
+      "name": "Service 46",
+      "description": "Description for service 46",
+      "price": 56,
+      "duration": 76
+    },
+    {
+      "name": "Service 47",
+      "description": "Description for service 47",
+      "price": 57,
+      "duration": 77
+    },
+    {
+      "name": "Service 48",
+      "description": "Description for service 48",
+      "price": 58,
+      "duration": 78
+    },
+    {
+      "name": "Service 49",
+      "description": "Description for service 49",
+      "price": 59,
+      "duration": 79
+    },
+    {
+      "name": "Service 50",
+      "description": "Description for service 50",
+      "price": 60,
+      "duration": 80
+    },
+    {
+      "name": "Service 51",
+      "description": "Description for service 51",
+      "price": 61,
+      "duration": 81
+    },
+    {
+      "name": "Service 52",
+      "description": "Description for service 52",
+      "price": 62,
+      "duration": 82
+    },
+    {
+      "name": "Service 53",
+      "description": "Description for service 53",
+      "price": 63,
+      "duration": 83
+    },
+    {
+      "name": "Service 54",
+      "description": "Description for service 54",
+      "price": 64,
+      "duration": 84
+    },
+    {
+      "name": "Service 55",
+      "description": "Description for service 55",
+      "price": 65,
+      "duration": 85
+    },
+    {
+      "name": "Service 56",
+      "description": "Description for service 56",
+      "price": 66,
+      "duration": 86
+    },
+    {
+      "name": "Service 57",
+      "description": "Description for service 57",
+      "price": 67,
+      "duration": 87
+    },
+    {
+      "name": "Service 58",
+      "description": "Description for service 58",
+      "price": 68,
+      "duration": 88
+    },
+    {
+      "name": "Service 59",
+      "description": "Description for service 59",
+      "price": 69,
+      "duration": 89
+    },
+    {
+      "name": "Service 60",
+      "description": "Description for service 60",
+      "price": 70,
+      "duration": 90
+    },
+    {
+      "name": "Service 61",
+      "description": "Description for service 61",
+      "price": 71,
+      "duration": 91
+    },
+    {
+      "name": "Service 62",
+      "description": "Description for service 62",
+      "price": 72,
+      "duration": 92
+    },
+    {
+      "name": "Service 63",
+      "description": "Description for service 63",
+      "price": 73,
+      "duration": 93
+    },
+    {
+      "name": "Service 64",
+      "description": "Description for service 64",
+      "price": 74,
+      "duration": 94
+    },
+    {
+      "name": "Service 65",
+      "description": "Description for service 65",
+      "price": 75,
+      "duration": 95
+    },
+    {
+      "name": "Service 66",
+      "description": "Description for service 66",
+      "price": 76,
+      "duration": 96
+    },
+    {
+      "name": "Service 67",
+      "description": "Description for service 67",
+      "price": 77,
+      "duration": 97
+    },
+    {
+      "name": "Service 68",
+      "description": "Description for service 68",
+      "price": 78,
+      "duration": 98
+    },
+    {
+      "name": "Service 69",
+      "description": "Description for service 69",
+      "price": 79,
+      "duration": 99
+    },
+    {
+      "name": "Service 70",
+      "description": "Description for service 70",
+      "price": 80,
+      "duration": 100
+    },
+    {
+      "name": "Service 71",
+      "description": "Description for service 71",
+      "price": 81,
+      "duration": 101
+    },
+    {
+      "name": "Service 72",
+      "description": "Description for service 72",
+      "price": 82,
+      "duration": 102
+    },
+    {
+      "name": "Service 73",
+      "description": "Description for service 73",
+      "price": 83,
+      "duration": 103
+    },
+    {
+      "name": "Service 74",
+      "description": "Description for service 74",
+      "price": 84,
+      "duration": 104
+    },
+    {
+      "name": "Service 75",
+      "description": "Description for service 75",
+      "price": 85,
+      "duration": 105
+    },
+    {
+      "name": "Service 76",
+      "description": "Description for service 76",
+      "price": 86,
+      "duration": 106
+    },
+    {
+      "name": "Service 77",
+      "description": "Description for service 77",
+      "price": 87,
+      "duration": 107
+    },
+    {
+      "name": "Service 78",
+      "description": "Description for service 78",
+      "price": 88,
+      "duration": 108
+    },
+    {
+      "name": "Service 79",
+      "description": "Description for service 79",
+      "price": 89,
+      "duration": 109
+    },
+    {
+      "name": "Service 80",
+      "description": "Description for service 80",
+      "price": 90,
+      "duration": 110
+    },
+    {
+      "name": "Service 81",
+      "description": "Description for service 81",
+      "price": 91,
+      "duration": 111
+    },
+    {
+      "name": "Service 82",
+      "description": "Description for service 82",
+      "price": 92,
+      "duration": 112
+    },
+    {
+      "name": "Service 83",
+      "description": "Description for service 83",
+      "price": 93,
+      "duration": 113
+    },
+    {
+      "name": "Service 84",
+      "description": "Description for service 84",
+      "price": 94,
+      "duration": 114
+    },
+    {
+      "name": "Service 85",
+      "description": "Description for service 85",
+      "price": 95,
+      "duration": 115
+    },
+    {
+      "name": "Service 86",
+      "description": "Description for service 86",
+      "price": 96,
+      "duration": 116
+    },
+    {
+      "name": "Service 87",
+      "description": "Description for service 87",
+      "price": 97,
+      "duration": 117
+    },
+    {
+      "name": "Service 88",
+      "description": "Description for service 88",
+      "price": 98,
+      "duration": 118
+    },
+    {
+      "name": "Service 89",
+      "description": "Description for service 89",
+      "price": 99,
+      "duration": 119
+    },
+    {
+      "name": "Service 90",
+      "description": "Description for service 90",
+      "price": 100,
+      "duration": 120
+    },
+    {
+      "name": "Service 91",
+      "description": "Description for service 91",
+      "price": 101,
+      "duration": 121
+    },
+    {
+      "name": "Service 92",
+      "description": "Description for service 92",
+      "price": 102,
+      "duration": 122
+    },
+    {
+      "name": "Service 93",
+      "description": "Description for service 93",
+      "price": 103,
+      "duration": 123
+    },
+    {
+      "name": "Service 94",
+      "description": "Description for service 94",
+      "price": 104,
+      "duration": 124
+    },
+    {
+      "name": "Service 95",
+      "description": "Description for service 95",
+      "price": 105,
+      "duration": 125
+    },
+    {
+      "name": "Service 96",
+      "description": "Description for service 96",
+      "price": 106,
+      "duration": 126
+    },
+    {
+      "name": "Service 97",
+      "description": "Description for service 97",
+      "price": 107,
+      "duration": 127
+    },
+    {
+      "name": "Service 98",
+      "description": "Description for service 98",
+      "price": 108,
+      "duration": 128
+    },
+    {
+      "name": "Service 99",
+      "description": "Description for service 99",
+      "price": 109,
+      "duration": 129
+    }
+  ],
+  "delivery": {
+    "available": true,
+    "areas": [
+      "Dashboard District",
+      "UI/UX Zone"
+    ],
+    "fee": 2.99,
+    "minimum": 12
+  },
+  "payment_methods": [
+    "cash",
+    "credit",
+    "debit",
+    "app"
+  ],
+  "special_notes": {
+    "halal": "Halal options available",
+    "vegetarian": "Full vegetarian menu"
+  }
+}

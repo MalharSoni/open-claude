@@ -1,0 +1,43 @@
+{
+  "name": "Test Sushi Bar",
+  "phone": "(555) 111-2222",
+  "address": "999 Integration St, Test City, TC 99999",
+  "hours": {
+    "monday": "7am–10pm",
+    "tuesday": "7am–10pm",
+    "wednesday": "7am–10pm",
+    "thursday": "7am–10pm",
+    "friday": "7am–11pm",
+    "saturday": "8am–11pm",
+    "sunday": "8am–9pm"
+  },
+  "services": [
+    {
+      "name": "sushi special",
+      "description": "Our famous sushi",
+      "price": 15.99
+    }
+  ],
+  "delivery": {
+    "available": true,
+    "areas": [
+      "Test Zone A",
+      "Test Zone B",
+      "Integration District"
+    ],
+    "fee": 4.99,
+    "minimum": 25
+  },
+  "payment_methods": [
+    "cash",
+    "credit",
+    "debit",
+    "crypto",
+    "app"
+  ],
+  "special_notes": {
+    "halal": "Certified halal kitchen",
+    "vegetarian": "Extensive vegan and vegetarian options",
+    "gluten_free": "Gluten-free menu available"
+  }
+}
