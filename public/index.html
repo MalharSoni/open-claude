@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Receptionist Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+        }
+
+        .question-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: 1px solid #bdc3c7;
+            padding: 10px 15px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .question-btn:hover {
+            background: #d5dbdb;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .response-text {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .logs-card {
+            grid-column: 1 / -1;
+        }
+
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .logs-table th,
+        .logs-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .logs-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .logs-table td {
+            font-size: 13px;
+        }
+
+        .intent-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .file-upload {
+            border: 2px dashed #bdc3c7;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #3498db;
+        }
+
+        .file-upload.dragover {
+            border-color: #3498db;
+            background: #f0f8ff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .question-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI Receptionist Dashboard</h1>
+            <p class="subtitle">Upload business data, test AI responses, and manage your receptionist</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Business Upload Card -->
+            <div class="card">
+                <h2>📁 Upload Business Data</h2>
+
+                <div class="form-group">
+                    <label for="businessId">Business ID</label>
+                    <input type="text" id="businessId" placeholder="e.g. pizzakarachi" />
+                </div>
+
+                <div class="form-group">
+                    <label>Business JSON File</label>
+                    <div class="file-upload" id="fileUpload">
+                        <p>Click to select or drag & drop your business JSON file</p>
+                        <input type="file" id="fileInput" accept=".json" class="hidden" />
+                    </div>
+                    <div id="fileStatus" class="status hidden"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Or paste JSON directly:</label>
+                    <textarea id="jsonInput" placeholder='{"name": "Your Business", "hours": {...}, "services": [...]}' rows="8"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button id="uploadBtn">💾 Save Business</button>
+                    <button id="loadSampleBtn">📝 Load Sample</button>
+                </div>
+            </div>
+
+            <!-- AI Preview Card -->
+            <div class="card">
+                <h2>🎯 Test AI Responses</h2>
+
+                <div class="form-group">
+                    <label for="testBusinessId">Business ID to Test</label>
+                    <select id="testBusinessId">
+                        <option value="pizzakarachi">pizzakarachi (default)</option>
+                    </select>
+                </div>
+
+                <div class="preview-section">
+                    <label>Quick Test Questions:</label>
+                    <div class="question-buttons">
+                        <button class="question-btn" data-question="What are your hours?">What are your hours?</button>
+                        <button class="question-btn" data-question="Do you deliver?">Do you deliver?</button>
+                        <button class="question-btn" data-question="Is your food halal?">Is your food halal?</button>
+                        <button class="question-btn" data-question="Where are you located?">Where are you located?</button>
+                        <button class="question-btn" data-question="What's on the menu?">What's on the menu?</button>
+                        <button class="question-btn" data-question="Can I make a reservation?">Can I make a reservation?</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="customQuestion">Or ask a custom question:</label>
+                    <input type="text" id="customQuestion" placeholder="Type your question here..." />
+                    <button id="testBtn" style="margin-top: 10px; width: 100%;">🎤 Test Response</button>
+                </div>
+
+                <div id="responseArea" class="response-area hidden">
+                    <div id="responseText" class="response-text"></div>
+                    <div class="audio-controls">
+                        <audio id="audioPlayer" controls class="hidden"></audio>
+                        <div id="audioStatus" class="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Logs Card -->
+        <div class="card logs-card">
+            <h2>📊 Recent Requests</h2>
+            <button id="refreshLogsBtn">🔄 Refresh</button>
+
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Business</th>
+                        <th>User Input</th>
+                        <th>Intent</th>
+                        <th>Audio</th>
+                        <th>Response Time</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTable">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #7f8c8d;">No requests yet. Test the AI above to see logs appear here.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        let requestLogs = [];
+
+        // File upload handling
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+        const fileStatus = document.getElementById('fileStatus');
+        const jsonInput = document.getElementById('jsonInput');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.name.endsWith('.json')) {
+                showStatus(fileStatus, 'error', 'Please select a JSON file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    jsonInput.value = JSON.stringify(jsonData, null, 2);
+                    showStatus(fileStatus, 'success', `Loaded ${file.name}`);
+                } catch (error) {
+                    showStatus(fileStatus, 'error', 'Invalid JSON file');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Load sample data
+        document.getElementById('loadSampleBtn').addEventListener('click', () => {
+            const sampleData = {
+                "name": "Sample Business",
+                "phone": "(555) 123-4567",
+                "address": "123 Main St, City, State 12345",
+                "hours": {
+                    "monday": "9am–5pm",
+                    "tuesday": "9am–5pm",
+                    "wednesday": "9am–5pm",
+                    "thursday": "9am–5pm",
+                    "friday": "9am–5pm",
+                    "saturday": "10am–3pm",
+                    "sunday": "Closed"
+                },
+                "services": [
+                    {
+                        "name": "Consultation",
+                        "description": "Professional consultation service",
+                        "price": 100,
+                        "duration": 60
+                    }
+                ],
+                "delivery": {
+                    "available": true,
+                    "areas": ["Downtown", "North Side", "East District"],
+                    "fee": 5,
+                    "minimum": 25
+                },
+                "payment_methods": ["cash", "credit", "debit"],
+                "special_notes": {
+                    "halal": "All our products are halal certified"
+                }
+            };
+
+            jsonInput.value = JSON.stringify(sampleData, null, 2);
+            document.getElementById('businessId').value = 'sample-business';
+        });
+
+        // Save business data
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const businessId = document.getElementById('businessId').value.trim();
+            const jsonData = jsonInput.value.trim();
+
+            if (!businessId || !jsonData) {
+                alert('Please provide both Business ID and JSON data');
+                return;
+            }
+
+            try {
+                const parsedData = JSON.parse(jsonData);
+                const response = await fetch(`${API_BASE}/api/business/${businessId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(parsedData)
+                });
+
+                if (response.ok) {
+                    alert('Business data saved successfully!');
+                    updateBusinessSelect(businessId);
+                } else {
+                    alert('Failed to save business data');
+                }
+            } catch (error) {
+                alert('Invalid JSON data');
+            }
+        });
+
+        // Question buttons
+        document.querySelectorAll('.question-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('customQuestion').value = btn.dataset.question;
+                testAIResponse(btn.dataset.question);
+            });
+        });
+
+        // Custom question test
+        document.getElementById('testBtn').addEventListener('click', () => {
+            const question = document.getElementById('customQuestion').value.trim();
+            if (question) {
+                testAIResponse(question);
+            }
+        });
+
+        // Enter key on custom question
+        document.getElementById('customQuestion').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const question = e.target.value.trim();
+                if (question) {
+                    testAIResponse(question);
+                }
+            }
+        });
+
+        async function testAIResponse(question) {
+            const businessId = document.getElementById('testBusinessId').value;
+            const responseArea = document.getElementById('responseArea');
+            const responseText = document.getElementById('responseText');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioStatus = document.getElementById('audioStatus');
+
+            responseArea.classList.remove('hidden');
+            responseText.innerHTML = '<em>Testing response...</em>';
+            audioPlayer.classList.add('hidden');
+            showStatus(audioStatus, 'loading', 'Processing...');
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/call`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_input: question,
+                        business_id: businessId
+                    })
+                });
+
+                const result = await response.json();
+                const responseTime = Date.now() - startTime;
+
+                if (response.ok) {
+                    responseText.innerHTML = `
+                        <strong>Intent:</strong> <span class="intent-badge">${result.intent}</span><br>
+                        <strong>Response:</strong><br>
+                        ${result.text_response.replace(/\n/g, '<br>')}
+                    `;
+
+                    if (result.audio_available && result.audio_url) {
+                        audioPlayer.src = result.audio_url;
+                        audioPlayer.classList.remove('hidden');
+                        showStatus(audioStatus, 'success', 'Audio ready');
+                    } else {
+                        showStatus(audioStatus, 'error', 'No audio available');
+                    }
+
+                    // Add to logs
+                    addRequestLog({
+                        timestamp: new Date(),
+                        business_id: businessId,
+                        user_input: question,
+                        intent: result.intent,
+                        audio_available: result.audio_available,
+                        response_time: responseTime
+                    });
+
+                } else {
+                    responseText.innerHTML = `<em style="color: #e74c3c;">Error: ${result.error || 'Failed to get response'}</em>`;
+                    showStatus(audioStatus, 'error', 'Request failed');
+                }
+            } catch (error) {
+                responseText.innerHTML = `<em style="color: #e74c3c;">Network error: ${error.message}</em>`;
+                showStatus(audioStatus, 'error', 'Network error');
+            }
+        }
+
+        function showStatus(element, type, message) {
+            element.className = `status ${type}`;
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+
+        function updateBusinessSelect(businessId) {
+            const select = document.getElementById('testBusinessId');
+            const exists = Array.from(select.options).some(option => option.value === businessId);
+            if (!exists) {
+                const option = new Option(businessId, businessId);
+                select.add(option);
+                select.value = businessId;
+            }
+        }
+
+        function addRequestLog(logEntry) {
+            requestLogs.unshift(logEntry);
+            if (requestLogs.length > 50) {
+                requestLogs = requestLogs.slice(0, 50);
+            }
+            updateLogsTable();
+        }
+
+        function updateLogsTable() {
+            const tbody = document.getElementById('logsTable');
+
+            if (requestLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #7f8c8d;">No requests yet. Test the AI above to see logs appear here.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = requestLogs.map(log => `
+                <tr>
+                    <td>${log.timestamp.toLocaleTimeString()}</td>
+                    <td>${log.business_id}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${log.user_input}">${log.user_input}</td>
+                    <td><span class="intent-badge">${log.intent}</span></td>
+                    <td>${log.audio_available ? '🔊' : '❌'}</td>
+                    <td>${log.response_time}ms</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('refreshLogsBtn').addEventListener('click', () => {
+            // In a real app, this would fetch logs from the backend
+            updateLogsTable();
+        });
+
+        // Load available businesses on page load
+        async function loadBusinesses() {
+            try {
+                const response = await fetch(`${API_BASE}/api/businesses`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const select = document.getElementById('testBusinessId');
+
+                    // Clear existing options except default
+                    select.innerHTML = '<option value="pizzakarachi">pizzakarachi (default)</option>';
+
+                    // Add businesses from API
+                    result.businesses.forEach(business => {
+                        if (business.business_id !== 'pizzakarachi') {
+                            const option = new Option(
+                                `${business.name} (${business.business_id})`,
+                                business.business_id
+                            );
+                            select.add(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load businesses:', error);
+            }
+        }
+
+        // Initialize
+        loadBusinesses();
+        updateLogsTable();
+    </script>
+</body>
+</html>

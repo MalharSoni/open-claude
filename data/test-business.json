@@ -1,0 +1,7 @@
+{
+  "name": "Test Restaurant",
+  "phone": "(555) 123-4567",
+  "hours": {
+    "monday": "9am-5pm"
+  }
+}
