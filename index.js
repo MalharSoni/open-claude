@@ -7,6 +7,7 @@ require('dotenv').config();
 const bookRouter = require('./routes/book');
 const callRouter = require('./routes/call');
 const voiceRouter = require('./routes/voice');
+const streamRouter = require('./routes/stream');
 const apiRouter = require('./routes/api');
 const audioCleanup = require('./services/audioCleanup');
 
@@ -35,6 +36,7 @@ app.get('/health', (req, res) => {
 app.use('/book', bookRouter);
 app.use('/call', callRouter);
 app.use('/voice', voiceRouter);
+app.use('/stream', streamRouter);
 app.use('/api', apiRouter);
 
 // Audio management endpoints
@@ -74,9 +76,11 @@ app.listen(PORT, () => {
   console.log(`📅 Booking endpoint: http://localhost:${PORT}/book`);
   console.log(`📞 Call endpoint: http://localhost:${PORT}/call`);
   console.log(`☎️  Voice endpoint: http://localhost:${PORT}/voice`);
+  console.log(`🎙️  Stream endpoint: http://localhost:${PORT}/stream`);
   console.log(`🔧 API endpoints: http://localhost:${PORT}/api`);
   console.log(`🎵 Audio info: http://localhost:${PORT}/audio/info`);
   console.log(`✅ No authentication required - using mock booking service`);
+  console.log(`🚀 Start streaming server: node streaming-server.js`);
 
   // Start automatic audio cleanup (every 6 hours)
   if (process.env.AUDIO_CLEANUP !== 'false') {
