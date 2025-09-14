@@ -37,12 +37,7 @@ router.post('/', async (req, res) => {
       name: 'AI-Receptionist-Stream'
     });
 
-    // Add some fallback instructions
-    twiml.say({
-      voice: 'alice'
-    }, 'Connecting you to our AI receptionist. Please wait a moment.');
-
-    console.log(`[STREAM-VOICE] Streaming TwiML generated, connecting to: ${streamUrl}`);
+    console.log(`[STREAM-VOICE] Real-time streaming TwiML generated, connecting to: ${streamUrl}`);
 
   } catch (error) {
     console.error('[STREAM-VOICE] Error processing streaming call:', error);

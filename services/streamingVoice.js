@@ -130,29 +130,32 @@ class StreamingVoiceService {
   }
 
   /**
-   * Send initial greeting to caller
+   * Send immediate AI greeting to caller (no delays - real-time like Rondah.ai)
    */
   async sendInitialGreeting(ws, streamSid) {
     try {
-      const greetingText = "Hello! Welcome to Pizza Karachi. How can I help you today?";
+      const greetingText = "Hi there! This is Pizza Karachi's AI assistant. What can I help you with?";
 
-      console.log('[STREAM] Generating initial greeting...');
+      console.log('[STREAM] AI greeting starting immediately...');
 
-      // Generate TTS for greeting
-      const audioBuffer = await this.generateSpeechAudio(greetingText);
+      // Use ElevenLabs for high-quality immediate TTS
+      const audioBuffer = await this.generateSpeechAudioElevenLabs(greetingText);
 
       if (audioBuffer) {
-        console.log('[STREAM] Sending greeting audio to caller...');
-        // Send audio to Twilio stream
-        this.sendAudioToStream(ws, streamSid, audioBuffer);
-
-        // Add delay to ensure greeting is fully played
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        console.log('[STREAM] Streaming AI greeting...');
+        // Send audio immediately without delays
+        this.sendAudioToStreamRealtime(ws, streamSid, audioBuffer);
+      } else {
+        // Fallback to OpenAI if ElevenLabs fails
+        const fallbackAudio = await this.generateSpeechAudio(greetingText);
+        if (fallbackAudio) {
+          this.sendAudioToStreamRealtime(ws, streamSid, fallbackAudio);
+        }
       }
 
-      console.log('[STREAM] Initial greeting sent');
+      console.log('[STREAM] AI greeting initiated');
     } catch (error) {
-      console.error('[STREAM] Error sending greeting:', error);
+      console.error('[STREAM] Error with AI greeting:', error);
     }
   }
 
@@ -184,17 +187,17 @@ class StreamingVoiceService {
   }
 
   /**
-   * Determine if we should process accumulated audio
+   * Determine if we should process accumulated audio (real-time like Rondah.ai)
    */
   shouldProcessAudio(callSession, audioBuffer) {
     const bufferDuration = audioBuffer.length * 20; // Assuming 20ms per chunk
     const timeSinceLastProcess = Date.now() - (callSession.lastProcessTime || 0);
 
-    // Process if:
-    // 1. Buffer has 3+ seconds of audio (more buffer for better transcription), OR
-    // 2. 5+ seconds since last processing (catch end of speech) AND buffer has at least 1 second
-    return bufferDuration >= 3000 ||
-           (timeSinceLastProcess >= 5000 && bufferDuration >= 1000 && !callSession.isProcessing);
+    // Real-time processing - much faster than before:
+    // 1. Buffer has 0.8+ seconds of audio (fast response), OR
+    // 2. 2+ seconds since last processing (catch end of speech) AND buffer has at least 0.5 seconds
+    return bufferDuration >= 800 ||
+           (timeSinceLastProcess >= 2000 && bufferDuration >= 500 && !callSession.isProcessing);
   }
 
   /**
@@ -337,37 +340,80 @@ class StreamingVoiceService {
   }
 
   /**
-   * Generate speech from text and send to caller
+   * Generate speech from text and send to caller (real-time like Rondah.ai)
    */
   async respondWithSpeech(ws, callSid, text) {
     try {
       const callSession = this.activeCalls.get(callSid);
       if (!callSession) return;
 
-      console.log(`[TTS] Generating speech for: "${text.substring(0, 50)}..."`);
+      console.log(`[TTS] Real-time speech generation: "${text.substring(0, 50)}..."`);
 
-      // Generate audio
-      const audioBuffer = await this.generateSpeechAudio(text);
+      // Try ElevenLabs first for better quality
+      let audioBuffer = await this.generateSpeechAudioElevenLabs(text);
+
+      if (!audioBuffer) {
+        // Fallback to OpenAI if ElevenLabs fails
+        audioBuffer = await this.generateSpeechAudio(text);
+      }
 
       if (audioBuffer) {
-        // Send to Twilio stream
-        this.sendAudioToStream(ws, callSession.streamSid, audioBuffer);
-        console.log('[TTS] Audio sent to caller');
+        // Send to Twilio stream immediately - no delays
+        this.sendAudioToStreamRealtime(ws, callSession.streamSid, audioBuffer);
+        console.log('[TTS] Real-time audio streaming initiated');
 
         // Keep connection alive by updating last activity
         callSession.lastActivity = Date.now();
-
-        // Add delay to ensure audio is processed before potential stream end
-        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
     } catch (error) {
-      console.error('[TTS] Error generating speech:', error);
+      console.error('[TTS] Error in real-time speech:', error);
     }
   }
 
   /**
-   * Generate speech audio using OpenAI TTS
+   * Generate speech audio using ElevenLabs for real-time streaming
+   */
+  async generateSpeechAudioElevenLabs(text) {
+    try {
+      if (!process.env.ELEVENLABS_API_KEY) {
+        console.log('[TTS] ElevenLabs API key not found, using OpenAI fallback');
+        return null;
+      }
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': process.env.ELEVENLABS_API_KEY
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5
+          }
+        })
+      });
+
+      if (response.ok) {
+        const audioBuffer = Buffer.from(await response.arrayBuffer());
+        return audioBuffer;
+      } else {
+        console.error('[TTS] ElevenLabs API error:', response.status, response.statusText);
+        return null;
+      }
+
+    } catch (error) {
+      console.error('[TTS] ElevenLabs error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate speech audio using OpenAI TTS (fallback)
    */
   async generateSpeechAudio(text) {
     try {
@@ -388,12 +434,12 @@ class StreamingVoiceService {
   }
 
   /**
-   * Send audio buffer to Twilio stream in chunks
+   * Send audio buffer to Twilio stream in real-time (like Rondah.ai)
    */
-  sendAudioToStream(ws, streamSid, audioBuffer) {
+  sendAudioToStreamRealtime(ws, streamSid, audioBuffer) {
     try {
-      // Send audio in smaller chunks to prevent stream ending
-      const chunkSize = 8192; // 8KB chunks
+      // Send audio in very small chunks for real-time feel
+      const chunkSize = 4096; // 4KB chunks for faster streaming
       let offset = 0;
 
       const sendChunk = () => {
@@ -412,16 +458,24 @@ class StreamingVoiceService {
           ws.send(JSON.stringify(mediaMessage));
           offset += chunkSize;
 
-          // Send next chunk after small delay
-          setTimeout(sendChunk, 20); // 20ms between chunks
+          // Send next chunk with minimal delay for real-time feel
+          setTimeout(sendChunk, 10); // 10ms between chunks
         }
       };
 
       sendChunk();
 
     } catch (error) {
-      console.error('[STREAM] Error sending audio:', error);
+      console.error('[STREAM] Error sending real-time audio:', error);
     }
+  }
+
+  /**
+   * Send audio buffer to Twilio stream in chunks (legacy method)
+   */
+  sendAudioToStream(ws, streamSid, audioBuffer) {
+    // Use the real-time method for all audio now
+    this.sendAudioToStreamRealtime(ws, streamSid, audioBuffer);
   }
 
   /**
