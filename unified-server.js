@@ -72,12 +72,14 @@ class UnifiedAIReceptionist {
       const host = req.get('host');
       const streamUrl = `${protocol === 'https' ? 'wss' : 'ws'}://${host}/media-stream`;
 
-      // TwiML response - NO robotic greeting, immediate stream
+      // TwiML response with Say fallback for testing
       const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
+  <Say>Testing audio. This is Pizza Karachi. Please wait while we connect you.</Say>
   <Start>
     <Stream url="${streamUrl}" />
   </Start>
+  <Say>If you hear this, the WebSocket failed to connect.</Say>
   <Pause length="60" />
 </Response>`;
 
@@ -99,6 +101,14 @@ class UnifiedAIReceptionist {
 
     wss.on('connection', (ws, req) => {
       console.log('🔗 New Media Stream WebSocket connection');
+      console.log(`🔗 Connection from: ${req.headers.host}`);
+      console.log(`🔗 Headers:`, req.headers);
+
+      // Send immediate test tone on ANY connection
+      console.log('🚨 EMERGENCY TEST: Sending tone immediately on connection!');
+      setTimeout(() => {
+        this.sendEmergencyTone(ws);
+      }, 100);
 
       let callSid = null;
       let streamSid = null;
@@ -214,6 +224,41 @@ class UnifiedAIReceptionist {
       console.error('❌ Error sending greeting:', error);
       // Send test tone as fallback
       this.sendTestTone(ws, streamSid);
+    }
+  }
+
+  sendEmergencyTone(ws) {
+    try {
+      console.log('🚨 SENDING EMERGENCY TONE WITHOUT STREAM ID!');
+
+      // Try to send tone with a fake streamSid
+      const fakeStreamSid = 'MZaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
+      // Generate a loud beep
+      const toneBuffer = Buffer.alloc(1600); // 200ms at 8kHz
+      for (let i = 0; i < toneBuffer.length; i++) {
+        const sample = Math.sin(2 * Math.PI * 1000 * i / 8000) * 0.8; // 1kHz tone
+        const intSample = Math.round(sample * 32767);
+        toneBuffer[i] = this.linearToMulaw(intSample);
+      }
+
+      // Try multiple ways to send
+      const mediaMessage = {
+        event: 'media',
+        streamSid: fakeStreamSid,
+        media: {
+          payload: toneBuffer.toString('base64')
+        }
+      };
+
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify(mediaMessage));
+        console.log('✅ Emergency tone sent!');
+      } else {
+        console.log(`❌ WebSocket not open! State: ${ws.readyState}`);
+      }
+    } catch (error) {
+      console.error('❌ Emergency tone error:', error);
     }
   }
 
