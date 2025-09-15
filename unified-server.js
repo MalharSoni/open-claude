@@ -68,9 +68,18 @@ class UnifiedAIReceptionist {
       console.log(`📞 Incoming call from ${From} to ${To}, CallSid: ${CallSid}`);
 
       // Get the base URL (works for both local and production)
-      const protocol = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
-      const host = req.get('host');
-      const streamUrl = `${protocol === 'https' ? 'wss' : 'ws'}://${host}/media-stream`;
+      // For Render, we need to use the proper forwarded headers
+      const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
+      const host = req.get('x-forwarded-host') || req.get('host');
+
+      // Force WSS for production
+      const wsProtocol = (protocol === 'https' || process.env.NODE_ENV === 'production') ? 'wss' : 'ws';
+      const streamUrl = `${wsProtocol}://${host}/media-stream`;
+
+      console.log(`📡 WebSocket URL configuration:`);
+      console.log(`  Protocol: ${protocol} -> ${wsProtocol}`);
+      console.log(`  Host: ${host}`);
+      console.log(`  Full URL: ${streamUrl}`);
 
       // TwiML response with Say fallback for testing
       const twiml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -94,15 +103,47 @@ class UnifiedAIReceptionist {
     const server = require('http').createServer(this.app);
 
     // Create WebSocket server for media streams
+    // Use noServer option for better compatibility with Render
     const wss = new WebSocket.Server({
-      server,
-      path: '/media-stream'
+      noServer: true
+    });
+
+    // Handle WebSocket upgrade requests manually
+    server.on('upgrade', (request, socket, head) => {
+      console.log(`🔄 WebSocket upgrade request for: ${request.url}`);
+
+      if (request.url === '/media-stream') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+          console.log('✅ WebSocket upgrade successful');
+          wss.emit('connection', ws, request);
+        });
+      } else {
+        console.log(`❌ Invalid WebSocket path: ${request.url}`);
+        socket.destroy();
+      }
     });
 
     wss.on('connection', (ws, req) => {
-      console.log('🔗 New Media Stream WebSocket connection');
+      console.log('🔗 New Media Stream WebSocket connection ESTABLISHED!');
       console.log(`🔗 Connection from: ${req.headers.host}`);
-      console.log(`🔗 Headers:`, req.headers);
+      console.log(`🔗 User-Agent: ${req.headers['user-agent']}`);
+      console.log(`🔗 URL: ${req.url}`);
+
+      // Keep track of connection
+      let isAlive = true;
+      const pingInterval = setInterval(() => {
+        if (!isAlive) {
+          console.log('❌ WebSocket connection dead, terminating');
+          clearInterval(pingInterval);
+          return ws.terminate();
+        }
+        isAlive = false;
+        ws.ping();
+      }, 30000);
+
+      ws.on('pong', () => {
+        isAlive = true;
+      });
 
       // Send immediate test tone on ANY connection
       console.log('🚨 EMERGENCY TEST: Sending tone immediately on connection!');
@@ -177,6 +218,7 @@ class UnifiedAIReceptionist {
 
       ws.on('close', () => {
         console.log('🔌 WebSocket connection closed');
+        clearInterval(pingInterval);
         if (callSid) {
           this.cleanupCall(callSid);
         }
